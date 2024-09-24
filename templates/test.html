@@ -1,0 +1,34 @@
+<div class="comment">
+  <ul class="commentList">
+    <li>
+      <div class="commenterImage">
+        <img src="{{ gravatar }}" alt="{{ comment.comment_author.name }}'s profile picture">
+      </div>
+      <div class="commentText">
+        {{ comment.text|safe }}
+        <span class="date sub-text">{{ comment.comment_author.name }}</span>
+      </div>
+    </li>
+  </ul>
+</div>
+
+
+
+        <div class="comment">
+          {{ render_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+          <!-- TODO: Show all the comments on a post -->
+          <ul class="commentList">
+            {% for comment in post.comments %}
+            <li>
+              <div class="commenterImage">
+                <img src="../static/assets/img/default-profile.jpg" />
+              </div>
+              <div class="commentText">
+                <p>{{ comment.text }}</p>
+                <span class="date sub-text">{{ comment.author.name }}</span>
+              </div>
+            </li>
+            {% endfor %}
+
+          </ul>
+        </div>
