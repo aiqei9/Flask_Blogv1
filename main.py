@@ -48,7 +48,7 @@ class User(UserMixin, db.Model):
     # Parent of BlogPost and Comment (1..n)
     posts = relationship("BlogPost", back_populates="author")
     # posts: Mapped["BlogPost"] = relationship(back_populates="author")
-    comments = relationship("Comment", back_populates="author")
+    user_comments = relationship("Comment", back_populates="author")
     # comments: Mapped["Comment"] = relationship(back_populates="author")
 
 class BlogPost(db.Model):
@@ -60,10 +60,10 @@ class BlogPost(db.Model):
     body: Mapped[str] = mapped_column(Text, nullable=False)
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
     # Child of User (n..1)
-    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    author_id = mapped_column(ForeignKey("users.id"))
     author = relationship("User", back_populates="posts")
     # Parent of Comment (1..n)
-    comments = relationship("Comment", back_populates="post")
+    comments = relationship("Comment", back_populates="post", cascade='all, delete')
 
 class Comment(db.Model):
     __tablename__ = "comments"
@@ -71,9 +71,10 @@ class Comment(db.Model):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     # Child of User (n..1)
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    author = relationship("User", back_populates="comments")
+    author = relationship("User", back_populates="user_comments")
     # Child of BlogPost (n..1)
-    post_id: Mapped[int] = mapped_column(ForeignKey("blog_posts.id"))
+    post_id = mapped_column(Integer, ForeignKey("blog_posts.id", ondelete="CASCADE"))
+    # post_id: Mapped[int] = mapped_column(Integer, ForeignKey("blog_posts.id", ondelete="CASCADE"))
     post = relationship("BlogPost", back_populates="comments")
 
 
@@ -91,7 +92,7 @@ def admin_only(func):
     return wrapper_function
 
 
-# TODO: Use Werkzeug to hash the user's password when creating a new user.
+# Use Werkzeug to hash the user's password when creating a new user.
 @app.route('/register', methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -113,7 +114,6 @@ def register():
     return render_template("register.html", form=form)
 
 
-# TODO: Retrieve a user from the database based on their email. 
 @app.route('/login', methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -158,21 +158,14 @@ def show_post(post_id):
                 text=form.comment.data,
                 author=current_user,
                 post=requested_post,
-                # post_id=requested_post.id
             )
             db.session.add(new_comment)
             db.session.commit()
-            return redirect(url_for("get_all_posts"))
+            return redirect(url_for("show_post", post_id=requested_post.id))
         else:
             flash('Please log in to comment on post.')
             return redirect(url_for('login'))
     return render_template("post.html", post=requested_post, form=form)
-    # return render_template("post.html",
-    #                        post=requested_post,
-    #                        # form=form,
-    #                        logged_in=current_user.is_authenticated,
-    #                        gravatar=gravatar_url(current_user.email)  # Right there!
-    #                        )
 
 # TODO: Use a decorator so only an admin user can create a new post
 @app.route("/new-post", methods=["GET", "POST"])
@@ -218,7 +211,7 @@ def edit_post(post_id):
 
 
 # TODO: Use a decorator so only an admin user can delete a post
-@app.route("/delete/<int:post_id>")
+@app.route("/delete/<int:post_id>", methods=["GET", "POST"])
 @admin_only
 def delete_post(post_id):
     post_to_delete = db.get_or_404(BlogPost, post_id)
@@ -227,13 +220,14 @@ def delete_post(post_id):
     return redirect(url_for('get_all_posts'))
 
 
-@app.route("/delete-comment/<int:comment_id>")
+@app.route("/delete-comment/<int:comment_id>", methods=["GET", "POST"])
 @admin_only
 def delete_comment(comment_id):
     comment_to_delete = db.get_or_404(Comment, comment_id)
+    post_id = comment_to_delete.post_id # to be able to refer the user back to the post parent to the deleted comment
     db.session.delete(comment_to_delete)
     db.session.commit()
-    return redirect(url_for('get_all_posts'))
+    return redirect(url_for('show_post', post_id=post_id))
 
 
 @app.route("/about")
@@ -247,4 +241,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
