@@ -36,8 +36,9 @@ class Base(DeclarativeBase):
     pass
 
 # CONNECT TO DB
-if os.environ.get("LOCAL_DB") == "True":
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+LOCAL_DB = False
+if LOCAL_DB:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 
