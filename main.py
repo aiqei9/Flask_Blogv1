@@ -1,17 +1,16 @@
+import os
 from datetime import date
 from flask import Flask, abort, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap5
-# from flask_ckeditor import CKEditor
-# from flask_gravatar import Gravatar
-from hashlib import sha256
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text, ForeignKey
 from functools import wraps
+from hashlib import sha256
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
-import os
+
 
 
 app = Flask(__name__)
@@ -33,8 +32,8 @@ class Base(DeclarativeBase):
     pass
 
 # CONNECT TO DB
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", 'sqlite:///posts.db')
-
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
