@@ -12,7 +12,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 # ckeditor = CKEditor(app) # not used
@@ -241,4 +240,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run('0.0.0.0')
