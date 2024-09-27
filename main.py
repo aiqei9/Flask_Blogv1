@@ -12,14 +12,11 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-# ckeditor = CKEditor(app)
+# ckeditor = CKEditor(app) # not used
 Bootstrap5(app)
 
 
@@ -36,18 +33,13 @@ class Base(DeclarativeBase):
     pass
 
 # CONNECT TO DB
-LOCAL_DB = False
-if LOCAL_DB:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", 'sqlite:///posts.db')
 
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
 
 # CONFIGURE TABLES
-
 class User(UserMixin, db.Model):
     __tablename__ = "users" # SQLAlchemy creates the table automatically with the class name if this is omitted
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
