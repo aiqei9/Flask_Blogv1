@@ -69,20 +69,20 @@
                   {{ comment.text }}
                   {% if current_user.id == comment.author.id %}
                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{comment.id}}">
-                    Delete id: {{comment.id}}
+                    Delete
                     </button>
                     <!-- Modal -->
                     <div class="modal fade" id="modal{{comment.id}}" data-bs-backdrop="static" tabindex="-1" aria-labelledby="modal{{comment.id}}Label" aria-hidden="true">
                       <div class="modal-dialog">
                         <div class="modal-content">
                           <div class="modal-header">
-                            <h3 class="modal-title fs-5" id="modal{{comment.id}}sLabel">Delete comment id: {{comment.id}}?</h3>
+                            <h3 class="modal-title fs-5" id="modal{{comment.id}}Label">Delete</h3>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                               <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST">
-                                <input class="btn btn-danger btn-sm" type="submit" value="Delete comment">
+                                <input class="btn btn-danger btn-sm" type="submit" value="Delete">
                               </form>
                           </div>
                         </div>
